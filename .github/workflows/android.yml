@@ -12,22 +12,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          override: true
           targets: aarch64-linux-android
+
       - name: Check Rust Version
         run: |
           rustc --version
           cargo --version
+          which cargo
+
       - name: Install Android NDK
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27c
+
       - name: Install cargo-ndk
-        run: cargo install cargo-ndk --version 3.5.6 --locked
+        run: cargo install cargo-ndk --locked
+
       - name: Build Rathole
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_ROOT }}
@@ -39,10 +44,12 @@ jobs:
             --release \
             --no-default-features \
             --features client,rustls,noise,websocket-rustls
+
       - name: Strip Binary
         run: |
           $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
           target/${{ matrix.target }}/release/rathole || true
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
