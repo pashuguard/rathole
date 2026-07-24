@@ -19,6 +19,9 @@ jobs:
           toolchain: stable
           targets: aarch64-linux-android
 
+      - name: Force stable toolchain (ignore repo rust-toolchain.toml)
+        run: rustup override set stable
+
       - name: Check Rust Version
         run: |
           rustc --version
