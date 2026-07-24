@@ -1,0 +1,54 @@
+name: Android Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - target: aarch64-linux-android
+            arch: arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27c
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Build Rathole
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_ROOT }}
+        run: |
+          cargo ndk \
+            --platform 24 \
+            --target ${{ matrix.target }} \
+            build \
+            --release \
+            --no-default-features \
+            --features client,rustls,noise,websocket-rustls
+
+      - name: Strip Binary
+        run: |
+          $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip \
+          target/${{ matrix.target }}/release/rathole || true
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rathole-${{ matrix.arch }}
+          path: target/${{ matrix.target }}/release/rathole
