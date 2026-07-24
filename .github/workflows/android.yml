@@ -37,9 +37,9 @@ jobs:
         run: cargo install cargo-ndk --locked
 
       - name: Build Rathole
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_ROOT }}
         run: |
+          export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
+          echo "Using NDK at: $ANDROID_NDK_HOME"
           cargo ndk \
             --platform 24 \
             --target ${{ matrix.target }} \
