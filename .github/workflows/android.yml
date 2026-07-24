@@ -35,7 +35,7 @@ jobs:
           ndk-version: r27c
 
       - name: Install cargo-ndk
-        run: cargo install cargo-ndk
+        run: cargo install cargo-ndk --version 3.6.0
 
       - name: Build Rathole
         env:
